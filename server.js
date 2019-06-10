@@ -25,9 +25,6 @@ const app = express();
 // Give express access to the public folder
 app.use(express.static("public"));
 
-// Deployment 2/3
-app.use(express.static(path.join(__dirname, "bloom-client", "build")));
-
 // Enable Cors to allow server and client routes to be different
 app.use(cors());
 
@@ -52,6 +49,7 @@ const db = require("./config/keys").mongoURI;
 console.info("@Server: dbPath", db);
 
 // Connect API to MongoDB
+// Deployment 2/3
 mongoose
   .connect(process.env.MONGODB_URI || db, { useNewUrlParser: true })
   .then(() => console.info("@Server: MongoDB connected"))
@@ -70,9 +68,12 @@ app.use("/api/intro", intro);
 const port = process.env.PORT || 4000;
 
 // Deployment 3/3
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "bloom-client", "build", "index.html"));
-});
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static("bloom-client/build"));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "bloom-client", "build", "index.html"));
+  });
+}
 
 // Listen port
 app.listen(port, () => console.info(`@Server: running on port ${port}`));
