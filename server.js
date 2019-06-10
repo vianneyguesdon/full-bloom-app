@@ -26,7 +26,7 @@ const app = express();
 app.use(express.static("public"));
 
 // Deployment 2/3
-app.use(express.static(path.join(__dirname, "client", "build")));
+app.use(express.static(path.join(__dirname, "bloom-client", "build")));
 
 // Enable Cors to allow server and client routes to be different
 app.use(cors());
@@ -71,7 +71,7 @@ const port = process.env.PORT || 4000;
 
 // Deployment 3/3
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "client", "build", "index.html"));
+  res.sendFile(path.join(__dirname, "bloom-client", "build", "index.html"));
 });
 
 // Listen port
