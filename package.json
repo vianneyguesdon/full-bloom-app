@@ -1,0 +1,39 @@
+{
+  "name": "bloom-api",
+  "version": "1.0.0",
+  "description": "api for Bloom App",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "heroku-postbuild": "cd client && npm install --only=dev && npm install && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexlabrioche/bloom.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alexlabrioche/bloom/issues"
+  },
+  "homepage": "https://github.com/alexlabrioche/bloom#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "connect-mongo": "^2.0.3",
+    "cors": "^2.8.5",
+    "express": "^4.16.4",
+    "helmet": "^3.18.0",
+    "mongoose": "^5.4.23",
+    "multer": "^1.4.1",
+    "passport": "^0.4.0",
+    "passport-local": "^1.0.0",
+    "passport-local-mongoose": "^5.0.1",
+    "slug": "^1.1.0",
+    "uid2": "0.0.3",
+    "validator": "^10.11.0"
+  },
+  "engines": {
+    "node": "10.15.0"
+  }
+}
