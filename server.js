@@ -70,6 +70,7 @@ const port = process.env.PORT || 4000;
 // Deployment 3/3
 if (process.env.NODE_ENV === "production") {
   app.use(express.static("bloom-client/build"));
+
   app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, "bloom-client", "build", "index.html"));
   });
