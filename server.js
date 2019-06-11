@@ -65,16 +65,19 @@ app.use("/api/votes", votes);
 app.use("/api/admin", admin);
 app.use("/api/intro", intro);
 
-const port = process.env.PORT || 4000;
-
 // Deployment 3/3
 if (process.env.NODE_ENV === "production") {
+  // Set static folder
   app.use(express.static("bloom-client/build"));
 
   app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "bloom-client", "build", "index.html"));
+    res.sendFile(
+      path.resolve(__dirname, "bloom-client", "build", "index.html")
+    );
   });
 }
+
+const port = process.env.PORT || 4000;
 
 // Listen port
 app.listen(port, () => console.info(`@Server: running on port ${port}`));
