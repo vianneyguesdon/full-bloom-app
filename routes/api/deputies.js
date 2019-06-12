@@ -138,6 +138,9 @@ router.put("/:id", (req, res) => {
     if (req.body.surname) {
       deputyFields.surname = req.body.surname;
     }
+    if (req.body.firstName || req.body.surname) {
+      deputyFields.name = req.body.firstName + " " + req.body.surname;
+    }
     if (req.body.mandateFrom) {
       deputyFields.mandateFrom = req.body.mandateFrom;
     }
