@@ -105,7 +105,8 @@ router.post("/add", upload.single("image"), (req, res) => {
         }
         console.log("data.twitter", data.twitter);
         const newDeputy = new Deputy({
-          name: data.name,
+          firstName: data.firstName,
+          surname: data.surname,
           mandateFrom: data.mandateFrom || "",
           mandateTo: data.mandateTo || "",
           group: data.group || "",
@@ -130,8 +131,11 @@ router.put("/:id", (req, res) => {
   Deputy.findById(req.params.id).then(deputy => {
     const deputyFields = {};
 
-    if (req.body.name) {
-      deputyFields.name = req.body.name;
+    if (req.body.firstName) {
+      deputyFields.firstName = req.body.firstName;
+    }
+    if (req.body.surname) {
+      deputyFields.surname = req.body.surname;
     }
     if (req.body.mandateFrom) {
       deputyFields.mandateFrom = req.body.mandateFrom;

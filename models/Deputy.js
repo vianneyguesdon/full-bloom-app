@@ -3,9 +3,11 @@ const Schema = mongoose.Schema;
 
 // Create Deputy Schema
 const DeputySchema = new Schema({
-  name: {
-    type: String,
-    index: true
+  firstName: {
+    type: String
+  },
+  surname: {
+    type: String
   },
   mandateFrom: {
     type: Date
