@@ -9,6 +9,9 @@ const DeputySchema = new Schema({
   surname: {
     type: String
   },
+  name: {
+    type: String
+  },
   mandateFrom: {
     type: Date
   },

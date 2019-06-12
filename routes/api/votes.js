@@ -27,6 +27,7 @@ router.get("/", (req, res) => {
     .populate("deputy", [
       "firstName",
       "surname",
+      "name",
       "participationRate",
       "mandateFrom",
       "mandateTo",
@@ -66,6 +67,7 @@ router.get("/:id", (req, res) => {
     .populate("deputy", [
       "firstName",
       "surname",
+      "name",
       "participationRate",
       "mandateFrom",
       "mandateTo",

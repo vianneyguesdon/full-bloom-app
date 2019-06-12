@@ -107,6 +107,7 @@ router.post("/add", upload.single("image"), (req, res) => {
         const newDeputy = new Deputy({
           firstName: data.firstName,
           surname: data.surname,
+          name: data.firstName + " " + data.surname,
           mandateFrom: data.mandateFrom || "",
           mandateTo: data.mandateTo || "",
           group: data.group || "",
