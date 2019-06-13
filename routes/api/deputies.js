@@ -104,17 +104,18 @@ router.post("/add", upload.single("image"), (req, res) => {
           data.twitter = data.twitter.substr(1);
         }
         console.log("data.twitter", data.twitter);
+        const name = data.firstName + " " + data.surname;
         const newDeputy = new Deputy({
           firstName: data.firstName,
           surname: data.surname,
-          name: data.firstName + " " + data.surname,
+          name: name,
           mandateFrom: data.mandateFrom || "",
           mandateTo: data.mandateTo || "",
           group: data.group || "",
           party: data.party || "",
           twitter: data.twitter || "",
           picture: apiPictureName || "",
-          slug: slug(data.name.toString())
+          slug: slug(name.toString())
         });
         newDeputy
           .save()
