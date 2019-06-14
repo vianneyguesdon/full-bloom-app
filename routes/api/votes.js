@@ -96,7 +96,7 @@ router.post("/add", upload.single("image"), (req, res) => {
     law: data.law
   }).then(vote => {
     if (vote) {
-      return res.json({ msg: "Ce vote existe déjà" });
+      return res.json({ msg: "Ce député a déja un vote sur cet amendement" });
     } else {
       const newVote = new Vote({
         decision: data.decision,
