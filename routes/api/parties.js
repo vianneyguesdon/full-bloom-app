@@ -34,8 +34,8 @@ router.get("/", (req, res) => {
   Party.find()
     .then(party => res.json(party))
     .catch(err =>
-      res.status(404).json({
-        message: "Il n'y a pas encore de parti politique"
+      res.json({
+        msg: "Il n'y a pas encore de parti politique"
       })
     );
 });
@@ -47,8 +47,8 @@ router.get("/:id", (req, res) => {
   Party.findById(req.params.id)
     .then(party => res.json(party))
     .catch(err =>
-      res.status(404).json({
-        message: "Il n'y a pas de parti politique avec cet ID"
+      res.json({
+        msg: "Il n'y a pas de parti politique avec cet ID"
       })
     );
 });
@@ -63,8 +63,8 @@ router.get("/slug/:slug", (req, res) => {
   Party.findOne(toFind)
     .then(party => res.json(party))
     .catch(err =>
-      res.status(404).json({
-        message: "Il n'y a pas de parti politique avec cette référence"
+      res.json({
+        msg: "Il n'y a pas de parti politique avec cette référence"
       })
     );
 });
@@ -75,23 +75,24 @@ router.get("/slug/:slug", (req, res) => {
 router.post("/add", upload.single("image"), (req, res) => {
   const data = JSON.parse(req.body.data);
   // console.log("data", data);
-  console.log("req.file", req.file);
+  // console.log("req.file", req.file);
   if (req.file === undefined) {
     // console.log("<< undefined loop");
     Party.findOne({ name: data.name }).then(party => {
       if (party) {
-        return res
-          .status(400)
-          .json({ message: "Ce parti politique existe déjà" });
+        return res.json({ msg: "Ce parti politique existe déjà" });
       } else {
         const newParty = new Party({
           name: data.name,
           description: data.description || "",
-
           slug: slug(data.name.toString())
         });
-
-        newParty.save().then(party => res.json(party));
+        newParty.save().then(party =>
+          res.json({
+            party: party,
+            msg: "Le parti a été sauvegardé"
+          })
+        );
       }
     });
   } else {
@@ -102,15 +103,11 @@ router.post("/add", upload.single("image"), (req, res) => {
     fs.rename(req.file.path, serverPictureName, function(err) {
       if (err) {
         // console.log("il y a une erreur", err);
-        return res
-          .status(400)
-          .json({ img: "L'image n'a pas pu être sauvegardée" });
+        return res.json({ msg: "L'image n'a pas pu être sauvegardée" });
       }
       Party.findOne({ name: data.name }).then(party => {
         if (party) {
-          return res
-            .status(400)
-            .json({ message: "Ce parti politique existe déjà" });
+          return res.json({ msg: "Ce parti politique existe déjà" });
         } else {
           const newParty = new Party({
             name: data.name,
@@ -119,7 +116,12 @@ router.post("/add", upload.single("image"), (req, res) => {
             slug: slug(data.name.toString())
           });
 
-          newParty.save().then(party => res.json(party));
+          newParty.save().then(party =>
+            res.json({
+              party: party,
+              msg: "Le parti a été sauvegardé"
+            })
+          );
         }
       });
     });
@@ -155,13 +157,13 @@ router.delete("/:id", (req, res) => {
       .then(() =>
         res.json({
           success: true,
-          message: "Le parti a été supprimé"
+          msg: "Le parti a été supprimé"
         })
       )
       .catch(err =>
-        res.status(404).json({
+        res.json({
           error: true,
-          message: "Il n'y a pas de parti à supprimer"
+          msg: "Il n'y a pas de parti à supprimer"
         })
       );
   });

@@ -57,8 +57,8 @@ router.get("/slug/:slug", (req, res) => {
     .populate("party", ["name", "description", "picture", "slug", "created"])
     .then(deputy => res.json(deputy))
     .catch(err =>
-      res.status(404).json({
-        message: "Il n'y a pas de député avec cette référence"
+      res.json({
+        msg: "Il n'y a pas de député avec cette référence"
       })
     );
 });
@@ -71,9 +71,7 @@ router.get("/:id", (req, res) => {
     .populate("group", ["name", "description", "picture", "slug", "created"])
     .populate("party", ["name", "description", "picture", "slug", "created"])
     .then(deputy => res.json(deputy))
-    .catch(err =>
-      res.status(400).json({ message: "Il n'y a pas de député avec cet ID" })
-    );
+    .catch(err => res.json({ msg: "Il n'y a pas de député avec cet ID" }));
 });
 
 // @route         POST api/deputies/add
@@ -83,46 +81,51 @@ router.post("/add", upload.single("image"), (req, res) => {
   // On rename la photo dans le upload
   const data = JSON.parse(req.body.data);
   // console.info(data);
+  if (req.file === undefined) {
+    res.json({ msg: "Merci d'uploader une image pour ce député" });
+  }
   const extension = getExtension(req.file); // Voir en dessous
   const filename = req.file.filename + extension;
   const serverPictureName = "public/uploads/" + filename;
   const apiPictureName = "uploads/" + filename;
+  console.log("apiPictureName", apiPictureName);
+  console.log("serverPictureName", serverPictureName);
   fs.rename(req.file.path, serverPictureName, function(err) {
     if (err) {
       console.log("il y a une erreur", err);
-      return res
-        .status(400)
-        .json({ img: "L'image n'a pas pu être sauvegardée" });
+      return res.json({ msg: "L'image n'a pas pu être sauvegardée" });
     }
-    Deputy.findOne({ name: data.name }).then(deputy => {
-      if (deputy) {
-        return res.status(400).json({ name: "Ce député existe déjà" });
-      } else {
-        // Delete the @ to be saved in DB and better diplay in front
-        console.log("data.twitter", data.twitter);
-        while (data.twitter.charAt(0) === "@") {
-          data.twitter = data.twitter.substr(1);
+    Deputy.findOne({ name: data.firstName + " " + data.surname }).then(
+      deputy => {
+        if (deputy) {
+          return res.json({ msg: "Ce député existe déjà" });
+        } else {
+          // Delete the @ to be saved in DB and better diplay in front
+          console.log("data.twitter", data.twitter);
+          while (data.twitter != undefined && data.twitter.charAt(0) === "@") {
+            data.twitter = data.twitter.substr(1);
+          }
+          console.log("data.twitter", data.twitter);
+          const name = data.firstName + " " + data.surname;
+          const newDeputy = new Deputy({
+            firstName: data.firstName,
+            surname: data.surname,
+            name: name,
+            mandateFrom: data.mandateFrom || "",
+            mandateTo: data.mandateTo || "",
+            group: data.group || "",
+            party: data.party || "",
+            twitter: data.twitter || "",
+            picture: apiPictureName || "",
+            slug: slug(name.toString())
+          });
+          newDeputy
+            .save()
+            .then(user => res.json({ user, msg: "Le député a été sauvegardé" }))
+            .catch(err => console.log("err", err));
         }
-        console.log("data.twitter", data.twitter);
-        const name = data.firstName + " " + data.surname;
-        const newDeputy = new Deputy({
-          firstName: data.firstName,
-          surname: data.surname,
-          name: name,
-          mandateFrom: data.mandateFrom || "",
-          mandateTo: data.mandateTo || "",
-          group: data.group || "",
-          party: data.party || "",
-          twitter: data.twitter || "",
-          picture: apiPictureName || "",
-          slug: slug(name.toString())
-        });
-        newDeputy
-          .save()
-          .then(user => res.json(user))
-          .catch(err => console.log("err", err));
       }
-    });
+    );
   });
 });
 
@@ -166,7 +169,9 @@ router.put("/:id", (req, res) => {
       { _id: req.params.id },
       { $set: deputyFields },
       { useFindAndModify: false }
-    ).then(deputy => res.json(deputy));
+    ).then(deputy =>
+      res.json({ user, msg: "La modification a été sauvegardée" })
+    );
   });
 });
 
@@ -183,20 +188,20 @@ router.delete("/:id", (req, res) => {
           .then(() =>
             res.json({
               success: true,
-              message: "Le député et ses votes ont été supprimés"
+              msg: "Le député et ses votes ont été supprimés"
             })
           )
           .catch(err =>
-            res.status(404).json({
+            res.json({
               error: true,
-              message: "Il n'y a pas de député à supprimer"
+              msg: "Il n'y a pas de député à supprimer"
             })
           );
       })
       .catch(err =>
-        res.status(404).json({
+        res.json({
           error: true,
-          message: "Il y a eu un problème lors de la suppression de ce député"
+          msg: "Il y a eu un problème lors de la suppression de ce député"
         })
       );
   });

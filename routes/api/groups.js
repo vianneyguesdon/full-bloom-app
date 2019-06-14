@@ -34,8 +34,8 @@ router.get("/", (req, res) => {
   Group.find()
     .then(group => res.json(group))
     .catch(err =>
-      res.status(404).json({
-        message: "Il n'y a pas encore de groupe politique"
+      res.json({
+        msg: "Il n'y a pas encore de groupe politique"
       })
     );
 });
@@ -47,8 +47,8 @@ router.get("/:id", (req, res) => {
   Group.findById(req.params.id)
     .then(group => res.json(group))
     .catch(err =>
-      res.status(404).json({
-        message: "Il n'y a pas de groupe politique avec cet ID"
+      res.json({
+        msg: "Il n'y a pas de groupe politique avec cet ID"
       })
     );
 });
@@ -63,8 +63,8 @@ router.get("/slug/:slug", (req, res) => {
   Group.findOne(toFind)
     .then(group => res.json(group))
     .catch(err =>
-      res.status(404).json({
-        message: "Il n'y a pas de groupe politique avec cette référence"
+      res.json({
+        msg: "Il n'y a pas de groupe politique avec cette référence"
       })
     );
 });
@@ -76,21 +76,22 @@ router.post("/add", upload.single("image"), (req, res) => {
   console.info(req);
   const data = JSON.parse(req.body.data);
   // console.log("data", data);
-
   if (req.file === undefined) {
     console.log("<< undefined loop");
     Group.findOne({ name: data.name }).then(group => {
       if (group) {
-        return res
-          .status(400)
-          .json({ message: "Ce groupe politique existe déjà" });
+        return res.json({ msg: "Ce groupe politique existe déjà" });
       } else {
         const newGroup = new Group({
           name: data.name,
           description: data.description || "",
           slug: slug(data.name.toString())
         });
-        newGroup.save().then(group => res.json(group));
+        newGroup
+          .save()
+          .then(group =>
+            res.json({ group: group, msg: "Le groupe a été sauvegardé" })
+          );
       }
     });
   } else {
@@ -101,15 +102,11 @@ router.post("/add", upload.single("image"), (req, res) => {
     fs.rename(req.file.path, serverPictureName, function(err) {
       if (err) {
         // console.log("il y a une erreur", err);
-        return res
-          .status(400)
-          .json({ img: "L'image n'a pas pu être sauvegardée" });
+        return res.json({ msg: "L'image n'a pas pu être sauvegardée" });
       }
       Group.findOne({ name: data.name }).then(group => {
         if (group) {
-          return res
-            .status(400)
-            .json({ message: "Ce groupe politique existe déjà" });
+          return res.json({ msg: "Ce groupe politique existe déjà" });
         } else {
           const newGroup = new Group({
             name: data.name,
@@ -117,7 +114,11 @@ router.post("/add", upload.single("image"), (req, res) => {
             picture: apiPictureName || "",
             slug: slug(data.name.toString())
           });
-          newGroup.save().then(group => res.json(group));
+          newGroup
+            .save()
+            .then(group =>
+              res.json({ group, msg: "Le groupe a été enregistré" })
+            );
         }
       });
     });
@@ -137,7 +138,7 @@ router.put("/:id", (req, res) => {
       { _id: req.params.id },
       { $set: groupFields },
       { useFindAndModify: false }
-    ).then(group => res.json(group));
+    ).then(group => res.json({ group, msg: "Modification enregistrée" }));
   });
 });
 
@@ -151,13 +152,13 @@ router.delete("/:id", (req, res) => {
       .then(() =>
         res.json({
           success: true,
-          message: "Le groupe a été supprimé"
+          msg: "Le groupe a été supprimé"
         })
       )
       .catch(err =>
-        res.status(404).json({
+        res.json({
           error: true,
-          message: "Il n'y a pas de groupe à supprimer"
+          msg: "Il n'y a pas de groupe à supprimer"
         })
       );
   });

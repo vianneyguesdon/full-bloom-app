@@ -17,8 +17,8 @@ router.get("/", (req, res) => {
       res.json(intro);
     })
     .catch(err =>
-      res.status(404).json({
-        message: "Il n'y a pas de texte d'introduction",
+      res.json({
+        msg: "Il n'y a pas de texte d'introduction",
         error: err
       })
     );
@@ -32,7 +32,7 @@ router.post("/add", (req, res) => {
   // console.log("<<< data", data);
   Intro.findOne({ title: data.name }).then(intro => {
     if (intro) {
-      return res.status(400).json({ name: "Cette catégorie existe déjà" });
+      return res.json({ name: "Cette catégorie existe déjà" });
     } else {
       const newIntro = new Intro({
         title: data.title,
@@ -41,7 +41,9 @@ router.post("/add", (req, res) => {
         paragraph3: data.paragraph3
       });
 
-      newIntro.save().then(intro => res.json(intro));
+      newIntro
+        .save()
+        .then(intro => res.json({ intro, msg: "L'intro a été postée" }));
     }
   });
 });
@@ -60,7 +62,7 @@ router.put("/:id", (req, res) => {
       { _id: req.params.id },
       { $set: introFields },
       { useFindAndModify: false }
-    ).then(() => res.json(introFields));
+    ).then(() => res.json({ intro, msg: "L'intro a été modifiée" }));
   });
 });
 

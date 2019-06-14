@@ -22,8 +22,8 @@ router.get("/", (req, res) => {
       res.json(laws);
     })
     .catch(err =>
-      res.status(404).json({
-        message: "Il n'y a pas encore de loi"
+      res.json({
+        msg: "Il n'y a pas encore de loi"
       })
     );
 });
@@ -35,8 +35,8 @@ router.get("/:id", (req, res) => {
   Law.findById(req.params.id)
     .then(law => res.json(law))
     .catch(err =>
-      res.status(404).json({
-        message: "Il n'y a pas de loi avec cet ID"
+      res.json({
+        msg: "Il n'y a pas de loi avec cet ID"
       })
     );
 });
@@ -51,8 +51,8 @@ router.get("/slug/:slug", (req, res) => {
   Law.findOne(toFind)
     .then(law => res.json(law))
     .catch(err =>
-      res.status(404).json({
-        message: "Il n'y a pas de loi avec cette référence"
+      res.json({
+        msg: "Il n'y a pas de loi avec cette référence"
       })
     );
 });
@@ -66,7 +66,7 @@ router.post("/add", upload.single("image"), (req, res) => {
   // console.log("data", data);
   Law.findOne({ name: data.name }).then(law => {
     if (law) {
-      return res.status(400).json({ message: "Cette loi existe déjà" });
+      return res.json({ msg: "Cette loi existe déjà" });
     } else {
       const newLaw = new Law({
         name: data.name,
@@ -80,7 +80,9 @@ router.post("/add", upload.single("image"), (req, res) => {
         slug: slug(data.name.toString())
       });
 
-      newLaw.save().then(law => res.json(law));
+      newLaw
+        .save()
+        .then(law => res.json({ law, msg: "Le texte a été enregistré" }));
     }
   });
 });
@@ -103,7 +105,7 @@ router.put("/:id", (req, res) => {
       { _id: req.params.id },
       { $set: lawFields },
       { useFindAndModify: false }
-    ).then(law => res.json(law));
+    ).then(law => res.json({ law, msg: "La modification a été enregistrée" }));
   });
 });
 
@@ -121,20 +123,20 @@ router.delete("/:id", (req, res) => {
           .then(() =>
             res.json({
               success: true,
-              message: "L'amendement et tous les votes liés ont été supprimés"
+              msg: "L'amendement et tous les votes liés ont été supprimés"
             })
           )
           .catch(err =>
-            res.status(404).json({
+            res.json({
               error: true,
-              message: "Il n'y a pas d'amendement à supprimer"
+              msg: "Il n'y a pas d'amendement à supprimer"
             })
           );
       })
       .catch(err =>
-        res.status(404).json({
+        res.json({
           error: true,
-          message:
+          msg:
             "Il y a eu un problème lors de la suppression des votes liés à l'amendement"
         })
       );

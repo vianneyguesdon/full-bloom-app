@@ -32,8 +32,8 @@ router.get("/", (req, res) => {
       res.json(categories);
     })
     .catch(err =>
-      res.status(404).json({
-        categories: "Il n'y a pas encore de catégories",
+      res.json({
+        msg: "Il n'y a pas encore de catégories",
         error: err
       })
     );
@@ -57,8 +57,8 @@ router.get("/:id", (req, res) => {
     ])
     .then(category => res.json(category))
     .catch(err =>
-      res.status(404).json({
-        noCategoryFound: "Il n'y a pas de catégorie de loi avec cet ID"
+      res.json({
+        msg: "Il n'y a pas de catégorie de loi avec cet ID"
       })
     );
 });
@@ -84,8 +84,8 @@ router.get("/slug/:slug", (req, res) => {
     ])
     .then(category => res.json(category))
     .catch(err =>
-      res.status(404).json({
-        message: "Il n'y a pas de catégorie avec cette référence"
+      res.json({
+        msg: "Il n'y a pas de catégorie avec cette référence"
       })
     );
 });
@@ -98,7 +98,7 @@ router.post("/add", upload.single("image"), (req, res) => {
   // console.log("data", data);
   LawCategory.findOne({ name: data.name }).then(category => {
     if (category) {
-      return res.status(400).json({ name: "Cette catégorie existe déjà" });
+      return res.json({ msg: "Cette catégorie existe déjà" });
     } else {
       const newLawCategory = new LawCategory({
         name: data.name,
@@ -106,7 +106,9 @@ router.post("/add", upload.single("image"), (req, res) => {
         slug: slug(data.name.toString())
       });
 
-      newLawCategory.save().then(law => res.json(law));
+      newLawCategory
+        .save()
+        .then(law => res.json({ law, msg: "Le texte a été enregistré" }));
     }
   });
 });
@@ -125,7 +127,7 @@ router.put("/:id", (req, res) => {
       { _id: req.params.id },
       { $set: lawFields },
       { useFindAndModify: false }
-    ).then(law => res.json(law));
+    ).then(law => res.json({ law, msg: "Le texte a été modifié" }));
   });
 });
 
@@ -139,13 +141,13 @@ router.delete("/:id", (req, res) => {
       .then(() =>
         res.json({
           success: true,
-          message: "Le texte a été supprimé"
+          msg: "Le texte a été supprimé"
         })
       )
       .catch(err =>
-        res.status(404).json({
+        res.json({
           error: true,
-          message: "Il n'y a pas de texte à supprimer"
+          msg: "Il n'y a pas de texte à supprimer"
         })
       );
   });

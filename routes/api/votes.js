@@ -41,7 +41,7 @@ router.get("/", (req, res) => {
       res.json(vote);
     })
     .catch(err =>
-      res.status(404).json({
+      res.json({
         message: "Il n'y a pas enocre de votes",
         error: err
       })
@@ -79,8 +79,8 @@ router.get("/:id", (req, res) => {
     ])
     .then(vote => res.json(vote))
     .catch(err =>
-      res.status(404).json({
-        message: "Il n'y a pas de vote avec cet ID"
+      res.json({
+        msg: "Il n'y a pas de vote avec cet ID"
       })
     );
 });
@@ -90,10 +90,13 @@ router.get("/:id", (req, res) => {
 // @access  Private
 router.post("/add", upload.single("image"), (req, res) => {
   const data = JSON.parse(req.body.data);
-  // console.log("data", data);
-  Vote.findOne({ decision: data.desision }).then(vote => {
+  console.log("data", data);
+  Vote.findOne({
+    deputy: data.deputy,
+    law: data.law
+  }).then(vote => {
     if (vote) {
-      return res.status(400).json({ message: "Ce vote existe déjà" });
+      return res.json({ msg: "Ce vote existe déjà" });
     } else {
       const newVote = new Vote({
         decision: data.decision,
@@ -101,7 +104,9 @@ router.post("/add", upload.single("image"), (req, res) => {
         law: data.law
       });
 
-      newVote.save().then(vote => res.json(vote));
+      newVote
+        .save()
+        .then(vote => res.json({ vote, msg: "Le vote a été sauvegardé" }));
     }
   });
 });
@@ -119,7 +124,9 @@ router.put("/:id", (req, res) => {
       { _id: req.params.id },
       { $set: voteFields },
       { useFindAndModify: false }
-    ).then(vote => res.json(vote));
+    ).then(vote =>
+      res.json({ vote, msg: "La modification a été sauvegardée" })
+    );
   });
 });
 
@@ -133,13 +140,13 @@ router.delete("/:id", (req, res) => {
       .then(() =>
         res.json({
           success: true,
-          message: "Le vote a été supprimé"
+          msg: "Le vote a été supprimé"
         })
       )
       .catch(err =>
-        res.status(404).json({
+        res.json({
           error: true,
-          message: "Il n'y a pas de vote à supprimer"
+          msg: "Il n'y a pas de vote à supprimer"
         })
       );
   });
