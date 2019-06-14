@@ -23,7 +23,7 @@ router.get("/", (req, res) => {
     })
     .catch(err =>
       res.json({
-        msg: "Il n'y a pas encore de loi"
+        msg: "Il n'y a pas encore d'amendement"
       })
     );
 });
@@ -36,7 +36,7 @@ router.get("/:id", (req, res) => {
     .then(law => res.json(law))
     .catch(err =>
       res.json({
-        msg: "Il n'y a pas de loi avec cet ID"
+        msg: "Il n'y a pas d'amendement avec cet ID"
       })
     );
 });
@@ -52,7 +52,7 @@ router.get("/slug/:slug", (req, res) => {
     .then(law => res.json(law))
     .catch(err =>
       res.json({
-        msg: "Il n'y a pas de loi avec cette référence"
+        msg: "Il n'y a pas d'amendement avec cet slug"
       })
     );
 });
@@ -66,7 +66,7 @@ router.post("/add", upload.single("image"), (req, res) => {
   // console.log("data", data);
   Law.findOne({ name: data.name }).then(law => {
     if (law) {
-      return res.json({ msg: "Cette loi existe déjà" });
+      return res.json({ msg: "Cet amendement existe déjà" });
     } else {
       const newLaw = new Law({
         name: data.name,
@@ -82,7 +82,7 @@ router.post("/add", upload.single("image"), (req, res) => {
 
       newLaw
         .save()
-        .then(law => res.json({ law, msg: "Le texte a été enregistré" }));
+        .then(law => res.json({ law, msg: "L'amendement a été enregistré" }));
     }
   });
 });

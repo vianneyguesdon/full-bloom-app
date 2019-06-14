@@ -85,7 +85,7 @@ router.get("/slug/:slug", (req, res) => {
     .then(category => res.json(category))
     .catch(err =>
       res.json({
-        msg: "Il n'y a pas de catégorie avec cette référence"
+        msg: "Il n'y a pas de texte avec ce slug"
       })
     );
 });
@@ -98,7 +98,7 @@ router.post("/add", upload.single("image"), (req, res) => {
   // console.log("data", data);
   LawCategory.findOne({ name: data.name }).then(category => {
     if (category) {
-      return res.json({ msg: "Cette catégorie existe déjà" });
+      return res.json({ msg: "Ce texte existe déjà" });
     } else {
       const newLawCategory = new LawCategory({
         name: data.name,
