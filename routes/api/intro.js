@@ -1,5 +1,9 @@
 const express = require("express");
 const router = express.Router();
+const multer = require("multer");
+
+// Define path for uploads images
+const upload = multer({ dest: "public/uploads/" });
 
 // Initialize slug Module
 const slug = require("slug");
@@ -48,21 +52,43 @@ router.post("/add", (req, res) => {
   });
 });
 
-// @route   PUT api/intro/update
-// @desc    Update the intro
+// @route   PUT api/intros/:id
+// @desc    Update intros
 // @access  Private
-router.put("/:id", (req, res) => {
-  Intro.findById(req.params.id).then(intro => {
-    const introFields = {};
-    if (req.body.title) introFields.title = req.body.title;
-    if (req.body.paragraph1) introFields.paragraph1 = req.body.paragraph1;
-    if (req.body.paragraph2) introFields.paragraph2 = req.body.paragraph2;
-    if (req.body.paragraph3) introFields.paragraph3 = req.body.paragraph3;
+router.put("/:id", upload.single("image"), (req, res) => {
+  const data = JSON.parse(req.body.data);
+
+  console.log("@1");
+  console.log(req.params.id, "req.params.id");
+
+  Intro.findById(req.params.id).then(intros => {
+    console.log("@2");
+    const introsFields = {};
+    console.log("data", data);
+
+    if (data.title !== undefined) {
+      console.log("ici title");
+      introsFields.title = data.title;
+      introsFields.slug = slug(data.title.toString());
+    }
+    if (data.paragraph1 !== undefined) {
+      introsFields.paragraph1 = data.paragraph1;
+    }
+    if (data.paragraph2 !== undefined) {
+      introsFields.paragraph2 = data.paragraph2;
+    }
+    if (data.paragraph3 !== undefined) {
+      introsFields.paragraph3 = data.paragraph3;
+    }
+    console.log(req.params.id, "req.params.id2 ");
+    console.log(introsFields, "introsFields");
     Intro.findOneAndUpdate(
       { _id: req.params.id },
-      { $set: introFields },
+      { $set: introsFields },
       { useFindAndModify: false }
-    ).then(() => res.json({ intro, msg: "L'intro a été modifiée" }));
+    ).then(intros =>
+      res.json({ intros, msg: "L'introduction du site a été modifiée" })
+    );
   });
 });
 

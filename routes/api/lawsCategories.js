@@ -113,21 +113,38 @@ router.post("/add", upload.single("image"), (req, res) => {
   });
 });
 
-// @route   PUT api/laws-categories/:id
-// @desc    Update a law category
+// @route   PUT api/law-categories/:id
+// @desc    Update lawscategories
 // @access  Private
-router.put("/:id", (req, res) => {
-  LawCategory.findById(req.params.id).then(law => {
-    const lawFields = {};
-    if (req.body.name) lawFields.name = req.body.name;
-    if (req.body.description) lawFields.description = req.body.description;
-    if (req.body.laws) lawFields.laws = req.body.laws;
-    if (req.body.slug) lawFields.slug = slug(req.body.name.toString());
+router.put("/:id", upload.single("image"), (req, res) => {
+  const data = JSON.parse(req.body.data);
+  console.log("req.file", req.file);
+
+  console.log("@1");
+  console.log(req.params.id, "req.params.id");
+
+  LawCategory.findById(req.params.id).then(lawscategories => {
+    console.log("@2");
+    const lawscategoriesFields = {};
+    console.log("data", data);
+
+    if (data.name !== undefined) {
+      console.log("ici name");
+      lawscategoriesFields.name = data.name;
+      lawscategoriesFields.slug = slug(data.name.toString());
+    }
+    if (data.description !== undefined) {
+      lawscategoriesFields.description = data.description;
+    }
+    console.log(req.params.id, "req.params.id2 ");
+    console.log(lawscategoriesFields, "lawscategoriesFields");
     LawCategory.findOneAndUpdate(
       { _id: req.params.id },
-      { $set: lawFields },
+      { $set: lawscategoriesFields },
       { useFindAndModify: false }
-    ).then(law => res.json({ law, msg: "Le texte a été modifié" }));
+    ).then(lawscategories =>
+      res.json({ lawscategories, msg: "Le texte a été modifié" })
+    );
   });
 });
 

@@ -119,17 +119,48 @@ router.post("/add", upload.single("image"), (req, res) => {
 // @route   PUT api/groups/:id
 // @desc    Update group
 // @access  Private
-router.put("/:id", (req, res) => {
-  Group.findById(req.params.id).then(group => {
-    const groupFields = {};
-    if (req.body.name) groupFields.name = req.body.name;
-    if (req.body.description) groupFields.description = req.body.description;
-    if (req.body.slug) groupFields.slug = slug(req.body.name.toString());
-    Group.findOneAndUpdate(
-      { _id: req.params.id },
-      { $set: groupFields },
-      { useFindAndModify: false }
-    ).then(group => res.json({ group, msg: "Modification enregistrée" }));
+router.put("/:id", upload.single("image"), (req, res) => {
+  const data = JSON.parse(req.body.data);
+  console.log("req.file", req.file);
+  if (req.file === undefined) {
+    return res.json({
+      msg: "Merci d'uploader une image pour modifier ce groupe"
+    });
+  }
+
+  const extension = getExtension(req.file); // Voir au dessus
+  const filename = req.file.filename + extension;
+  const serverPictureName = "public/uploads/" + filename;
+  const apiPictureName = "uploads/" + filename;
+  fs.rename(req.file.path, serverPictureName, function(err) {
+    if (err) {
+      // console.log("il y a une erreur", err);
+      return res.json({ msg: "L'image n'a pas pu être sauvegardée" });
+    }
+    Group.findById(req.params.id).then(group => {
+      console.log("@2");
+      const groupFields = {};
+      console.log("data", data);
+
+      if (data.name !== undefined) {
+        console.log("ici name");
+        groupFields.name = data.name;
+        groupFields.slug = slug(data.name.toString());
+      }
+      if (data.description !== undefined) {
+        groupFields.description = data.description;
+      }
+      if (apiPictureName !== undefined) {
+        groupFields.picture = apiPictureName;
+      }
+      console.log(req.params.id, "req.params.id2 ");
+      console.log(groupFields, "groupFields");
+      Group.findOneAndUpdate(
+        { _id: req.params.id },
+        { $set: groupFields },
+        { useFindAndModify: false }
+      ).then(group => res.json({ group, msg: "Le groupe a été modifié" }));
+    });
   });
 });
 

@@ -88,24 +88,49 @@ router.post("/add", upload.single("image"), (req, res) => {
 });
 
 // @route   PUT api/laws/:id
-// @desc    Update a law
+// @desc    Update lawscategories
 // @access  Private
-router.put("/:id", (req, res) => {
+router.put("/:id", upload.single("image"), (req, res) => {
+  console.log("@0 req.body.data", req.body.data);
+  console.log(req.params.id, "req.params.id");
+  const data = JSON.parse(req.body.data);
+  console.log("@1");
+  console.log(req.params.id, "req.params.id");
+
   Law.findById(req.params.id).then(law => {
-    const lawFields = {};
-    if (req.body.title) lawFields.title = req.body.title;
-    if (req.body.subTitle) lawFields.subTitle = req.body.subTitle;
-    if (req.body.protect) lawFields.protect = req.body.protect;
-    if (req.body.commencement) lawFields.commencement = req.body.commencement;
-    if (req.body.resume) lawFields.resume = req.body.resume;
-    if (req.body.fullText) lawFields.fullText = req.body.fullText;
-    if (req.body.link) lawFields.link = req.body.link;
-    if (req.body.slug) lawFields.slug = slug(req.body.title.toString());
+    console.log("@2");
+    const lawsFields = {};
+    console.log("data", data);
+
+    if (data.name !== undefined) {
+      lawsFields.name = data.name;
+      lawsFields.slug = slug(data.name.toString());
+    }
+    if (data.subTitle !== undefined) {
+      lawsFields.subTitle = data.subTitle;
+    }
+    if (data.protect !== undefined) {
+      lawsFields.protect = data.protect;
+    }
+    if (data.commencement !== undefined) {
+      lawsFields.commencement = data.commencement;
+    }
+    if (data.resume !== undefined) {
+      lawsFields.resume = data.resume;
+    }
+    if (data.fullText !== undefined) {
+      lawsFields.fullText = data.fullText;
+    }
+    if (data.link !== undefined) {
+      lawsFields.link = data.link;
+    }
+    console.log(req.params.id, "req.params.id2 ");
+    console.log(lawsFields, "lawsFields");
     Law.findOneAndUpdate(
       { _id: req.params.id },
-      { $set: lawFields },
+      { $set: lawsFields },
       { useFindAndModify: false }
-    ).then(law => res.json({ law, msg: "La modification a été enregistrée" }));
+    ).then(law => res.json({ law, msg: "L'amendement a été modifié" }));
   });
 });
 

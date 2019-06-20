@@ -129,49 +129,62 @@ router.post("/add", upload.single("image"), (req, res) => {
   });
 });
 
-// @route         PUT api/deputies/:id
-// @descrip       UPDATE : Update a deputy
-// @access        Restricted
-router.put("/:id", (req, res) => {
-  Deputy.findById(req.params.id).then(deputy => {
-    const deputyFields = {};
+// @route   PUT api/deputy/:id
+// @desc    Update deputy
+// @access  Private
+router.put("/:id", upload.single("image"), (req, res) => {
+  const data = JSON.parse(req.body.data);
+  console.log("req.file", req.file);
+  if (req.file === undefined) {
+    return res.json({
+      msg: "Merci d'uploader une image pour modifier ce député"
+    });
+  }
 
-    if (req.body.firstName) {
-      deputyFields.firstName = req.body.firstName;
+  const extension = getExtension(req.file); // Voir au dessus
+  const filename = req.file.filename + extension;
+  const serverPictureName = "public/uploads/" + filename;
+  const apiPictureName = "uploads/" + filename;
+  fs.rename(req.file.path, serverPictureName, function(err) {
+    if (err) {
+      // console.log("il y a une erreur", err);
+      return res.json({ msg: "L'image n'a pas pu être sauvegardée" });
     }
-    if (req.body.surname) {
-      deputyFields.surname = req.body.surname;
-    }
-    if (req.body.firstName || req.body.surname) {
-      deputyFields.name = req.body.firstName + " " + req.body.surname;
-    }
-    if (req.body.mandateFrom) {
-      deputyFields.mandateFrom = req.body.mandateFrom;
-    }
-    if (req.body.mandateTo) {
-      deputyFields.mandateTo = req.body.mandateTo;
-    }
-    if (req.body.group) {
-      deputyFields.group = req.body.group;
-    }
-    if (req.body.party) {
-      deputyFields.party = req.body.party;
-    }
-    if (req.body.twitter) {
-      deputyFields.twitter = req.body.twitter;
-    }
-    if (req.body.picture) {
-      deputyFields.picture = req.body.picture;
-    }
+    Deputy.findById(req.params.id).then(law => {
+      console.log("@2");
+      const deputiesField = {};
+      console.log("data", data);
 
-    deputyFields.slug = slug(req.body.name.toString());
-    Deputy.findOneAndUpdate(
-      { _id: req.params.id },
-      { $set: deputyFields },
-      { useFindAndModify: false }
-    ).then(deputy =>
-      res.json({ user, msg: "La modification a été sauvegardée" })
-    );
+      if (data.firstName !== undefined) {
+        deputiesField.firstName = data.firstName;
+      }
+      if (data.surname !== undefined) {
+        deputiesField.surname = data.surname;
+      }
+      if (data.firstName !== undefined || data.surname !== undefined) {
+        deputiesField.name = data.firstName + " " + data.surname;
+        deputiesField.slug = slug(deputiesField.name.toString());
+      }
+      if (data.twitter !== undefined) {
+        deputiesField.twitter = data.twitter;
+      }
+      if (data.party !== undefined) {
+        deputiesField.party = data.party;
+      }
+      if (data.group !== undefined) {
+        deputiesField.group = data.group;
+      }
+      if (apiPictureName !== undefined) {
+        deputiesField.picture = apiPictureName;
+      }
+      console.log(req.params.id, "req.params.id2 ");
+      console.log(deputiesField, "deputiesField");
+      Deputy.findOneAndUpdate(
+        { _id: req.params.id },
+        { $set: deputiesField },
+        { useFindAndModify: false }
+      ).then(deputy => res.json({ deputy, msg: "Le député a été modifié" }));
+    });
   });
 });
 
