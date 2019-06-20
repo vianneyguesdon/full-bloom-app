@@ -82,16 +82,7 @@ router.post("/add", upload.single("image"), (req, res) => {
       if (group) {
         return res.json({ msg: "Ce groupe politique existe déjà" });
       } else {
-        const newGroup = new Group({
-          name: data.name,
-          description: data.description || "",
-          slug: slug(data.name.toString())
-        });
-        newGroup
-          .save()
-          .then(group =>
-            res.json({ group: group, msg: "Le groupe a été sauvegardé" })
-          );
+        return res.json({ msg: "Merci d'uploader une image pour ce groupe" });
       }
     });
   } else {

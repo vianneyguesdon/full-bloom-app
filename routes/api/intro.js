@@ -32,7 +32,7 @@ router.post("/add", (req, res) => {
   // console.log("<<< data", data);
   Intro.findOne({ title: data.name }).then(intro => {
     if (intro) {
-      return res.json({ name: "Cette catégorie existe déjà" });
+      return res.json({ msg: "Cette catégorie existe déjà" });
     } else {
       const newIntro = new Intro({
         title: data.title,
@@ -48,7 +48,7 @@ router.post("/add", (req, res) => {
   });
 });
 
-// @route   PUT api/intro/:id
+// @route   PUT api/intro/update
 // @desc    Update the intro
 // @access  Private
 router.put("/:id", (req, res) => {

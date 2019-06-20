@@ -82,17 +82,7 @@ router.post("/add", upload.single("image"), (req, res) => {
       if (party) {
         return res.json({ msg: "Ce parti politique existe déjà" });
       } else {
-        const newParty = new Party({
-          name: data.name,
-          description: data.description || "",
-          slug: slug(data.name.toString())
-        });
-        newParty.save().then(party =>
-          res.json({
-            party: party,
-            msg: "Le parti a été sauvegardé"
-          })
-        );
+        return res.json({ msg: "Merci d'uploader une image pour ce parti" });
       }
     });
   } else {
@@ -131,18 +121,51 @@ router.post("/add", upload.single("image"), (req, res) => {
 // @route   PUT api/parties/:id
 // @desc    Update party
 // @access  Private
-router.put("/:id", (req, res) => {
-  Party.findById(req.params.id).then(party => {
-    const partyFields = {};
+router.put("/:id", upload.single("image"), (req, res) => {
+  const data = JSON.parse(req.body.data);
+  console.log("req.file", req.file);
+  if (req.file === undefined) {
+    return res.json({
+      msg: "Merci d'uploader une image pour modifier ce parti"
+    });
+  }
 
-    if (req.body.name) partyFields.name = req.body.name;
-    if (req.body.description) partyFields.description = req.body.description;
-    partyFields.slug = slug(req.body.name.toString());
-    Party.findOneAndUpdate(
-      { _id: req.params.id },
-      { $set: partyFields },
-      { useFindAndModify: false }
-    ).then(party => res.json(party));
+  console.log("@1");
+  console.log(req.params.id, "req.params.id");
+
+  const extension = getExtension(req.file); // Voir au dessus
+  const filename = req.file.filename + extension;
+  const serverPictureName = "public/uploads/" + filename;
+  const apiPictureName = "uploads/" + filename;
+  fs.rename(req.file.path, serverPictureName, function(err) {
+    if (err) {
+      // console.log("il y a une erreur", err);
+      return res.json({ msg: "L'image n'a pas pu être sauvegardée" });
+    }
+    Party.findById(req.params.id).then(party => {
+      console.log("@2");
+      const partyFields = {};
+      console.log("data", data);
+
+      if (data.name !== undefined) {
+        console.log("ici name");
+        partyFields.name = data.name;
+        partyFields.slug = slug(data.name.toString());
+      }
+      if (data.description !== undefined) {
+        partyFields.description = data.description;
+      }
+      if (apiPictureName !== undefined) {
+        partyFields.picture = apiPictureName;
+      }
+      console.log(req.params.id, "req.params.id2 ");
+      console.log(partyFields, "partyFields");
+      Party.findOneAndUpdate(
+        { _id: req.params.id },
+        { $set: partyFields },
+        { useFindAndModify: false }
+      ).then(party => res.json({ party, msg: "Le parti a été modifié" }));
+    });
   });
 });
 
