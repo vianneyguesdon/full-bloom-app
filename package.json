@@ -29,8 +29,6 @@
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^5.0.1",
-    "react-lines-ellipsis": "^0.14.1",
-    "react-read-more-less": "^0.1.6",
     "react-toastify": "^5.2.1",
     "slug": "^1.1.0",
     "uid2": "0.0.3",
