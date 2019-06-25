@@ -18,6 +18,7 @@ router.get("/", (req, res) => {
       "subTitle",
       "protect",
       "commencement",
+      "category",
       "resume",
       "fullText",
       "link",

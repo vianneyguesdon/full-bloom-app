@@ -29,7 +29,7 @@ const LawSchema = new Schema({
   },
   category: {
     type: Schema.Types.ObjectId,
-    ref: "categories"
+    ref: "lawCategories"
   },
   slug: {
     type: String
