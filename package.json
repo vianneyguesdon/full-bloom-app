@@ -23,6 +23,7 @@
     "connect-mongo": "^2.0.3",
     "cors": "^2.8.5",
     "express": "^4.16.4",
+    "firebase": "^6.2.4",
     "helmet": "^3.18.0",
     "mongoose": "^5.4.23",
     "multer": "^1.4.1",
